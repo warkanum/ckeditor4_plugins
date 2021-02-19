@@ -12,23 +12,30 @@ CKEDITOR.plugins.add( 'mergetagsdialog', {
 
 		editor.addCommand( 'mergeTagDialog', new CKEDITOR.dialogCommand( 'mergeTagDialog' ) );
 
-		/*editor.addCommand( 'mergetagsDialog', {
+		editor.addCommand( 'mergeTagCustom', {
 
 			exec: function( editor ) {        
-        var event = new CustomEvent('open-merge-dialog',{detail: {
+        var event = new CustomEvent('mergeTagCustom',{detail: {
           "editor": editor
         }});
 
-        new CKEDITOR.dialogCommand( 'abbrDialog' );
-
+        var myself = editor.element.$;
+				myself.dispatchEvent(event);	
 			}
 		});
-		*/
 
 		// Create the toolbar button that executes the above command.
 		editor.ui.addButton( 'MergeTagButton', {
 			label: 'Insert Merge Tags',
 			command: 'mergeTagDialog',
+      toolbar: 'insert',
+      icon: 'mergetags'
+		});
+
+		// Create the toolbar button that executes the above command.
+		editor.ui.addButton( 'CustomMergeTagButton', {
+			label: 'Insert Merge Tags',
+			command: 'mergeTagCustom',
       toolbar: 'insert',
       icon: 'mergetags'
 		});
@@ -74,7 +81,7 @@ CKEDITOR.plugins.add( 'mergetagsdialog', {
 						var mergediv = dlgdoc.getById("mergetagdiv");
 						var mergetagElem = dialog.getContentElement('tab-merge',"mergetagselected");
 						var okBtn = dialog.getButton('ok');
-						console.log("Show Dialog",editor.id, mergetagElem );
+						//console.log("Show Dialog",editor.id, mergetagElem );
 
 						var result = {};
 
