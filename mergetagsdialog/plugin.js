@@ -1,12 +1,14 @@
 
 // Register the plugin within the editor.
 CKEDITOR.plugins.add( 'mergetagsdialog', {
-
+	requires: 'widget',
 	// Register the icons. They must match command names.
 	icons: 'mergetags',
 
 	// The plugin initialization logic goes inside this method.
 	init: function( editor ) {
+		var pluginDirectory = this.path;
+    editor.addContentsCss( pluginDirectory + 'styles/contents.css' );
 
 		editor.addCommand( 'mergeTagDialog', new CKEDITOR.dialogCommand( 'mergeTagDialog' ) );
 
@@ -33,7 +35,7 @@ CKEDITOR.plugins.add( 'mergetagsdialog', {
 
 		CKEDITOR.dialog.add( 'mergeTagDialog', function( editor ) {
 			return {
-					title: 'Merge Tags',
+					title: 'Insert Merge Tags',
 					minWidth: 800,
 					minHeight: 500,
 					resizable:      CKEDITOR.DIALOG_RESIZE_BOTH,
@@ -63,12 +65,17 @@ CKEDITOR.plugins.add( 'mergetagsdialog', {
 									]
 							}
 					],
+					onLoad: function () {
+						this.getElement().removeClass('cke_reset_all');
+					},
 					onShow: function() {
 						var dialog = this;
 						var dlgdoc = dialog.getElement().getDocument();
 						var mergediv = dlgdoc.getById("mergetagdiv");
-						//var mergetagselected = dlgdoc.getById("mergetagselected");
-						console.log("Show Dialog",editor.id,mergediv, window.ck_mergetagdialog );
+						var mergetagElem = dialog.getContentElement('tab-merge',"mergetagselected");
+						var okBtn = dialog.getButton('ok');
+						console.log("Show Dialog",editor.id, mergetagElem );
+
 						var result = {};
 
 						if (window.ck_mergetagdialog && typeof window.ck_mergetagdialog[editor.id] == "function") {
@@ -82,24 +89,25 @@ CKEDITOR.plugins.add( 'mergetagsdialog', {
 						if (result.html) {
 							mergediv.$.innerHTML = result.html;
 						}
+						if (result.object) {
+							mergediv.$.appendChild(result.object);
+						}
 						//if (result.selectedhtml) {
 						//	mergetagselected.$.innerHTML = result.selectedhtml;
 						//}	
 						if (typeof result.callback == "function") {
-							result.callback(editor, mergediv.$, mergetagselected.$);
+							result.callback(dialog, mergediv.$, mergetagElem.getInputElement().$, okBtn);
 						}
 					},
 					onOk: function() {
             var dialog = this;
 						var dlgdoc = dialog.getElement().getDocument();
 
-            //
-						
-						var mergetagselected = dlgdoc.getById("mergetagselected");
+						//var mergetagselected = dlgdoc.getById("mergetagselected");
 
 						var tagspan = editor.document.createElement( 'span' );
-						tagspan.$.innerHTML = mergetagselected.getText();
-						tagspan.setAttribute("title", "Mergetag " + mergetagselected.getText());
+						tagspan.$.innerHTML = dialog.getValueOf('tab-merge','mergetagselected');
+						tagspan.setAttribute("title", "Merge Tag: " + tagspan.$.innerHTML);
 
             editor.insertElement( tagspan );
        	  }
